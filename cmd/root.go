@@ -9,7 +9,16 @@ import (
 	"github.com/electronjoe/weathercli/internal/formatter"
 	"github.com/electronjoe/weathercli/internal/utils"
 	"github.com/spf13/cobra"
+
+	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	log.SetLevel(log.WarnLevel)
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "weathercli [start-date]",

@@ -4,14 +4,11 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/electronjoe/weathercli/internal/api"
 )
 
 func OutputWeatherData(w io.Writer, data []api.WeatherData) error {
-	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
-
 	// Write header
 	headers := []string{
 		"Date",
@@ -26,11 +23,11 @@ func OutputWeatherData(w io.Writer, data []api.WeatherData) error {
 		"cloudcover",
 		"conditions",
 	}
-	fmt.Fprintln(tw, strings.Join(headers, "\t"))
+	fmt.Fprintln(w, strings.Join(headers, "\t"))
 
 	// Write data rows
 	for _, d := range data {
-		fmt.Fprintf(tw, "%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%s\t%.1f\t%.1f\t%.1f\t%s\n",
+		fmt.Fprintf(w, "%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%s\t%.1f\t%.1f\t%.1f\t%s\n",
 			d.Date.Format("2006-01-02"),
 			d.TempMax,
 			d.FeelsLikeMax,
@@ -45,5 +42,5 @@ func OutputWeatherData(w io.Writer, data []api.WeatherData) error {
 		)
 	}
 
-	return tw.Flush()
+	return nil
 }
