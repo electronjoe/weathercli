@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -73,10 +74,13 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-func (c *Client) FetchWeatherData(startDate time.Time) ([]WeatherData, error) {
-	// Using Nashville, TN coordinates as default (modify as needed)
+func (c *Client) FetchWeatherData(city string, startDate time.Time) ([]WeatherData, error) {
+	// URL encode the city parameter to handle spaces and special characters
+	encodedCity := url.QueryEscape(city)
+
 	url := fmt.Sprintf(
-		"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Nashville/%s/%s?key=%s&include=days",
+		"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/%s/%s/%s?key=%s&include=days",
+		encodedCity,
 		startDate.Format("2006-01-02"),
 		startDate.AddDate(0, 0, 6).Format("2006-01-02"),
 		c.apiKey,

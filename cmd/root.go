@@ -21,14 +21,21 @@ func init() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "weathercli [start-date]",
+	Use:   "weathercli [city] [start-date]",
 	Short: "A CLI tool to fetch and display weather data",
 	Long: `weathercli is a command-line tool that fetches historical weather data
-from VisualCrossing's Weather API and displays it in a tabular format.`,
-	Args: cobra.ExactArgs(1),
+from VisualCrossing's Weather API and displays it in a tabular format.
+Example: weathercli "London, UK" 2024-03-15`,
+	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		// Get city and validate it's not empty
+		city := args[0]
+		if city == "" {
+			return fmt.Errorf("city parameter cannot be empty")
+		}
+
 		// Validate and parse start date
-		startDate, err := utils.ParseDate(args[0])
+		startDate, err := utils.ParseDate(args[1])
 		if err != nil {
 			return fmt.Errorf("invalid date format: %v", err)
 		}
@@ -43,7 +50,7 @@ from VisualCrossing's Weather API and displays it in a tabular format.`,
 		client := api.NewClient(cfg.APIKey)
 
 		// Fetch weather data
-		data, err := client.FetchWeatherData(startDate)
+		data, err := client.FetchWeatherData(city, startDate)
 		if err != nil {
 			return err
 		}

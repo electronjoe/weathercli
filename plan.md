@@ -40,10 +40,12 @@
 
 1. **Input Parameters**:
    - **Environment Variable**: `WEATHER_API_KEY` for VisualCrossing's Weather API key.
-   - **Command-Line Argument**: Start date in `YYYY-MM-DD` format.
+   - **Command-Line Arguments**:
+     - City name (e.g., "London, UK", "New York, NY")
+     - Start date in `YYYY-MM-DD` format.
 
 2. **Data Retrieval**:
-   - Fetch historical weather data for the specified start date and the following six days (total of 7 days).
+   - Fetch historical weather data for the specified city and start date, covering the following six days (total of 7 days).
 
 3. **Data Output**:
    - Emit a tabular output with the following fields per day:
@@ -104,10 +106,14 @@ The tool follows a modular architecture comprising the following layers:
 
 - **Endpoint**: Utilize the appropriate VisualCrossing Weather API endpoint for historical data.
 - **Parameters**:
+  - City name (URL-encoded)
   - Start date
   - Number of days (7)
   - API key
   - Desired weather fields
+- **URL Construction**:
+  - Properly encode city names to handle spaces and special characters
+  - Format: `{baseURL}/{encodedCity}/{startDate}/{endDate}?key={apiKey}&include=days`
 - **HTTP Client**:
   - Use Go's `net/http` package.
   - Implement timeout settings to prevent hanging.
@@ -159,11 +165,12 @@ The tool follows a modular architecture comprising the following layers:
 ### Usage
 
 ```bash
-weathercli [OPTIONS] START_DATE
+weathercli [OPTIONS] CITY START_DATE
 ```
 
 ### Arguments
 
+- `CITY`: (Required) The city name, optionally including state/country (e.g., "London, UK", "Tokyo, Japan")
 - `START_DATE`: (Required) The start date in `YYYY-MM-DD` format.
 
 ### Options
@@ -174,8 +181,14 @@ weathercli [OPTIONS] START_DATE
 ### Examples
 
 ```bash
-# Basic usage
-weathercli 2024-04-01
+# Get weather for London
+weathercli "London, UK" 2024-04-01
+
+# Get weather for New York
+weathercli "New York, NY" 2024-04-01
+
+# Get weather for Tokyo
+weathercli "Tokyo, Japan" 2024-04-01
 
 # Display help
 weathercli --help
@@ -246,7 +259,7 @@ export WEATHER_API_KEY=your_api_key_here
 
 ```bash
 export WEATHER_API_KEY=your_api_key_here
-weathercli 2024-04-01
+weathercli "London, UK" 2024-04-01
 ```
 
 **Sample Output**:
@@ -262,17 +275,18 @@ Date        tempmax  feelslikemax  tempmin  feelslikemin  precip  preciptype  wi
 ### Example 2: Piping Output to `cut` to Extract Specific Fields
 
 ```bash
-weathercli 2024-04-01 | cut -f1,2,3
+weathercli "New York, NY" 2024-04-01 | cut -f1,3,5,6
 ```
 
 **Sample Output**:
 
 ```
-Date        tempmax  feelslikemax
-2024-04-01 15.2     14.8
-2024-04-02 16.5     16.0
+Date	feelslikemax	feelslikemin	precip
+2023-11-26	78.8	62.6	0.0
+2023-11-27	73.4	60.8	0.0
 ...
-2024-04-07 18.3     17.9
+2023-12-01	80.8	59.0	0.0
+2023-12-02	82.3	58.2	0.0
 ```
 
 ## Future Enhancements
